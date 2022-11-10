@@ -10,6 +10,12 @@ exports.socketFunctions = {
                 id: matchConfig.matchId,
                 name: matchConfig.roomName,
                 matchConfig: matchConfig,
+                matchMisc: {
+                    maxBans: matchConfig.matchMaps.length - matchConfig.matchBo,
+                    maxPicks: matchConfig.matchBo,
+                    maxMaps: matchConfig.matchMaps.length,
+                },
+                matchLogs: [],
             });
             socket.join(matchConfig.roomName);
             socket.emit('roomCreated', matchConfig.roomName);

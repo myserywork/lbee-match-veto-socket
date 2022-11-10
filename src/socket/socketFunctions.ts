@@ -1,3 +1,4 @@
+import { match } from 'assert';
 import { rooms } from './server';
 
 export const socketFunctions = {
@@ -8,7 +9,14 @@ export const socketFunctions = {
         id: matchConfig.matchId,
         name: matchConfig.roomName,
         matchConfig,
+        matchMisc: {
+          maxBans: matchConfig.matchMaps.length - matchConfig.matchBo,
+          maxPicks: matchConfig.matchBo,
+          maxMaps: matchConfig.matchMaps.length,
+        },
+        matchLogs: [],
       });
+
       socket.join(matchConfig.roomName);
       socket.emit('roomCreated', matchConfig.roomName);
     } else {

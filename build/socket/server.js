@@ -135,6 +135,22 @@ var beginChooseSidePhase = function (socket, roomId) {
         socket.to(room.name).emit('chooseSidePhaseStarted');
     }
 };
+var checkMapAlreadyPicked = function (room, map) {
+    var teamOneMaps = room.matchConfig.matchTeamOne.picked;
+    var teamTwoMaps = room.matchConfig.matchTeamTwo.picked;
+    if (teamOneMaps.includes(map) || teamTwoMaps.includes(map)) {
+        return true;
+    }
+    return false;
+};
+var getMapMisc = function (map) {
+    var mapMisc = {
+        map_name: map,
+        map_picture: 'https://i.imgur.com/0Z4Z4Zm.jpg',
+        map_description: 'A map description',
+    };
+    return mapMisc;
+};
 var checkIfIsChooseSidePhase = function (room) {
     if (room.matchConfig.matchPhase === 'chooseSide') {
         return true;
@@ -146,6 +162,39 @@ var checkifIsTimeToChooseSide = function (room) {
         return true;
     }
     return false;
+};
+var beginPickSidePhase = function (socket, roomId) {
+    var room = findRoom(roomId);
+    if (room) {
+        room.matchConfig.matchPhase = 'pickSide';
+        exports.rooms[exports.rooms.indexOf(room)] = room;
+        socket.to(room.name).emit('pickSidePhaseStarted');
+    }
+};
+var insertMatchLog = function (roomId, log) {
+    var room = findRoom(roomId);
+    if (room) {
+        room.matchLogs.push(log);
+        exports.rooms[exports.rooms.indexOf(room)] = room;
+    }
+};
+var checkIfisPickSidePhase = function (room) {
+    if (room.matchConfig.matchPhase === 'pickSide') {
+        return true;
+    }
+    return false;
+};
+var endPickSidePhase = function (socket, roomId) {
+    var room = findRoom(roomId);
+    if (room) {
+        room.matchConfig.matchPhase = 'end';
+        exports.rooms[exports.rooms.indexOf(room)] = room;
+        insertMatchLog(roomId, {
+            type: 'matchEnd',
+            message: 'Match has ended',
+        });
+        socket.to(room.name).emit('pickSidePhaseEnded');
+    }
 };
 io.on('connection', function (socket) {
     console.log('New connection', socket.id);
@@ -216,10 +265,22 @@ io.on('connection', function (socket) {
             return socket.emit('notYourTurn');
         }
         console.log('banMap', roomId, mapName, teamSide);
-        var maxBannedMapsPool = room.matchConfig.matchBannedMaps.length - room.matchBo;
-        if (room.matchConfig.matchBannedMaps.length >= maxBannedMapsPool) {
-            beginPickPhase(socket, roomId);
-            return socket.emit('maxMapsPoolReached');
+        console.log(room);
+        var alreadyBannedMapsCount = room.matchConfig.matchBannedMaps.length;
+        if (alreadyBannedMapsCount >= room.matchMisc.maxBans) {
+            console.log('max bans reached');
+            beginPickSidePhase(socket, roomId);
+            var notBannedMaps = room.matchConfig.matchMaps.filter(function (map) { return !room.matchConfig.matchBannedMaps.includes(map); });
+            var pickeMapsObject = notBannedMaps.map(function (map) {
+                return {
+                    name: map,
+                    teamOneSide: '',
+                    teamTwoSide: '',
+                };
+            });
+            room.matchConfig.matchPickedsMaps = pickeMapsObject;
+            exports.rooms[exports.rooms.indexOf(room)] = room;
+            return socket.emit('maxBansReached');
         }
         var teamSideObject = getTeamSideObject(room, teamSide);
         if (teamSide === 'teamOne') {
@@ -236,33 +297,59 @@ io.on('connection', function (socket) {
         exports.rooms[exports.rooms.indexOf(room)] = room;
         changeMatchTurn(room);
         socket.to(room.name).emit('mapBanned', mapName);
+        insertMatchLog(roomId, { type: 'ban', map: mapName, team: teamSide });
     });
-    socket.on('pickMap', function (roomId, mapName) {
+    socket.on('pickSide', function (roomId, mapName, side) {
+        console.log('pickSide', roomId, mapName, side);
         var room = findRoom(roomId);
         if (!room) {
+            console.log('room not found');
             return socket.emit('roomNotFound', roomId);
         }
         if (!isUserAllowedToVeto(socket, roomId)) {
+            console.log('not allowed to veto');
             return socket.emit('notAllowedToVeto');
         }
-        if (!checkIfIsPickPhase(room)) {
-            return socket.emit('notPickPhase');
+        var isPickTime = checkIfisPickSidePhase(room);
+        if (!isPickTime) {
+            console.log('not pick side phase');
+            return socket.emit('notPickSidePhase');
         }
         var teamSide = getTeamSideByToken(socket, roomId);
         if (!checkMatchTurn(room, teamSide)) {
+            console.log('not your turn');
             return socket.emit('notYourTurn');
         }
-        var teamSideObject = getTeamSideObject(room, teamSide);
+        var mapObject = room.matchConfig.matchPickedsMaps.find(function (map) { return map.name === mapName; });
+        console.log({ mapObject: mapObject });
+        if (mapObject.teamOneSide !== '' && mapObject.teamTwoSide !== '') {
+            console.log('side already picked');
+            return socket.emit('sideAlreadyPicked', mapName);
+        }
         if (teamSide === 'teamOne') {
-            room.matchConfig.matchTeamOne = __assign(__assign({}, teamSideObject), { picked: __spreadArray(__spreadArray([], teamSideObject.picked, true), [mapName], false) });
+            mapObject.teamOneSide = side;
+            mapObject.teamTwoSide = side === 'attack' ? 'defend' : 'attack';
         }
-        else if (teamSide === 'teamTwo') {
-            room.matchConfig.matchTeamTwo = __assign(__assign({}, teamSideObject), { picked: __spreadArray(__spreadArray([], teamSideObject.picked, true), [mapName], false) });
+        else {
+            mapObject.teamTwoSide = side;
+            mapObject.teamOneSide = side === 'attack' ? 'defend' : 'attack';
         }
-        room.matchConfig.matchPickedMaps.push(mapName);
+        room.matchConfig.matchPickedsMaps[room.matchConfig.matchPickedsMaps.indexOf(mapObject)] = mapObject;
         exports.rooms[exports.rooms.indexOf(room)] = room;
         changeMatchTurn(room);
-        socket.to(room.name).emit('mapPicked', mapName);
+        insertMatchLog(roomId, {
+            type: 'pick',
+            map: mapName,
+            team: teamSide,
+            side: side,
+        });
+        var maps = room.matchConfig.matchPickedsMaps;
+        var notSelected = maps.filter(function (map) {
+            return map.teamOneSide === '' && map.teamTwoSide === '';
+        });
+        if (notSelected.length === 0) {
+            endPickSidePhase(socket, roomId);
+        }
     });
 });
 exports.socketServer = io;
