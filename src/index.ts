@@ -1,7 +1,7 @@
 // eslint-disable-next-line no-console
 
-import { socketServer, rooms } from './socket/server';
-import { socketClient, socketClient2 } from './socket/client';
+import { socketServer, rooms } from './socket/server/server';
+import { socketClient, socketClient2 } from './socket/client/client';
 
 socketServer.emit('hello', 'world');
 
@@ -54,6 +54,8 @@ const matchConfig = {
   matchTurn: 'teamOne',
   matchPhase: 'ban',
   matchLogs: [],
+  timebetweenPhases: 20000,
+  nextPhaseTimeout: null,
 };
 
 socketClient.emit('createRoom', matchConfig);

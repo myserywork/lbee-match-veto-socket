@@ -1,7 +1,21 @@
 import { match } from 'assert';
 import { Server } from 'socket.io';
 import { socketFunctions } from './socketFunctions';
-import { matchVetoFunctions } from './vetoFunctions';
+import {
+  findRoom,
+  insertMatchLog,
+  checkIfisBanPhase,
+  changeMatchTurn,
+  beginChooseSidePhase,
+  beginPickSidePhase,
+  getTeamSideObject,
+  checkMatchTurn,
+  getTeamSideByToken,
+  isUserAllowedToVeto,
+  removeTeamTokenFromOutput,
+  checkifIsTimeToChooseSide,
+  checkIfisPickSidePhase,
+} from './functions';
 
 const io = new Server(3000);
 
@@ -12,170 +26,6 @@ setInterval(() => {
   console.log(rooms);
 }, 10000);
 
-const getToken = (socket: any) => {
-  return socket.handshake.query.token;
-};
-
-const findRoom = (roomId: string) => {
-  return rooms.find((room) => room.id === roomId);
-};
-
-const isUserAllowedToVeto = (socket: any, roomId: string) => {
-  const room = findRoom(roomId);
-  const token = getToken(socket);
-  if (room) {
-    if (
-      room.matchConfig.matchTeamOne.token === token ||
-      room.matchConfig.matchTeamTwo.token === token
-    ) {
-      return true;
-    }
-  }
-  return false;
-};
-
-const removeTeamTokenFromOutput = (room: any) => {
-  const { matchTeamOne, matchTeamTwo, ...rest } = room;
-  return rest;
-};
-
-const getTeamSideByToken = (socket: any, roomId: string) => {
-  const room = findRoom(roomId);
-  const token = getToken(socket);
-  if (room) {
-    if (room.matchConfig.matchTeamOne.token === token) {
-      return 'teamOne';
-    } else if (room.matchConfig.matchTeamTwo.token === token) {
-      return 'teamTwo';
-    }
-  }
-  return '';
-};
-
-const checkMapAlreadyBanned = (room: any, map: string) => {
-  if (room.matchConfig.matchBannedMaps.includes(map)) {
-    return true;
-  }
-  return false;
-};
-
-const checkMatchTurn = (room: any, side: string) => {
-  if (room.matchConfig.matchTurn === side) {
-    return true;
-  }
-  return false;
-};
-
-const beginPickPhase = (socket: any, roomId: string) => {
-  const room = findRoom(roomId);
-  if (room) {
-    room.matchConfig.matchPhase = 'pick';
-    rooms[rooms.indexOf(room)] = room;
-    socket.to(room.name).emit('pickPhaseStarted');
-  }
-};
-
-const getTeamSideObject = (room: any, side: string) => {
-  if (side === 'teamOne') {
-    return room.matchConfig.matchTeamOne;
-  } else if (side === 'teamTwo') {
-    return room.matchConfig.matchTeamTwo;
-  }
-  return null;
-};
-
-const checkIfIsPickPhase = (room: any) => {
-  if (room.matchConfig.matchPhase === 'pick') {
-    return true;
-  }
-  return false;
-};
-
-const checkIfisBanPhase = (room: any) => {
-  if (room.matchConfig.matchPhase === 'ban') {
-    return true;
-  }
-  return false;
-};
-
-const getMatchTurn = (room: any) => {
-  return room.matchConfig.matchTurn;
-};
-
-const changeMatchTurn = (room: any) => {
-  if (room.matchConfig.matchTurn === 'teamOne') {
-    room.matchConfig.matchTurn = 'teamTwo';
-  } else if (room.matchConfig.matchTurn === 'teamTwo') {
-    room.matchConfig.matchTurn = 'teamOne';
-  }
-  rooms[rooms.indexOf(room)] = room;
-};
-
-const beginChooseSidePhase = (socket: any, roomId: string) => {
-  const room = findRoom(roomId);
-  if (room) {
-    room.matchConfig.matchPhase = 'chooseSide';
-    rooms[rooms.indexOf(room)] = room;
-    socket.to(room.name).emit('chooseSidePhaseStarted');
-  }
-};
-
-const checkMapAlreadyPicked = (room: any, map: string) => {
-  const teamOneMaps = room.matchConfig.matchTeamOne.picked;
-  const teamTwoMaps = room.matchConfig.matchTeamTwo.picked;
-  if (teamOneMaps.includes(map) || teamTwoMaps.includes(map)) {
-    return true;
-  }
-  return false;
-};
-
-const getMapMisc = (map: string) => {
-  const mapMisc = {
-    map_name: map,
-    map_picture: 'https://i.imgur.com/0Z4Z4Zm.jpg',
-    map_description: 'A map description',
-  };
-  return mapMisc;
-};
-
-const checkIfIsChooseSidePhase = (room: any) => {
-  if (room.matchConfig.matchPhase === 'chooseSide') {
-    return true;
-  }
-  return false;
-};
-
-const checkifIsTimeToChooseSide = (room: any) => {
-  if (room.matchConfig.matchMaps.length === room.matchConfig.matchBo) {
-    return true;
-  }
-  return false;
-};
-
-const beginPickSidePhase = (socket: any, roomId: string) => {
-  const room = findRoom(roomId);
-  if (room) {
-    room.matchConfig.matchPhase = 'pickSide';
-    rooms[rooms.indexOf(room)] = room;
-    socket.to(room.name).emit('pickSidePhaseStarted');
-  }
-};
-
-const insertMatchLog = (roomId: string, log: any) => {
-  const room = findRoom(roomId);
-  if (room) {
-    room.matchLogs.push(log);
-    rooms[rooms.indexOf(room)] = room;
-  }
-};
-
-const checkIfisPickSidePhase = (room: any) => {
-  if (room.matchConfig.matchPhase === 'pickSide') {
-    return true;
-  }
-  return false;
-};
-
 const endPickSidePhase = (socket: any, roomId: string) => {
   const room = findRoom(roomId);
   if (room) {
@@ -183,10 +33,23 @@ const endPickSidePhase = (socket: any, roomId: string) => {
     rooms[rooms.indexOf(room)] = room;
     insertMatchLog(roomId, {
       type: 'matchEnd',
-      message: 'Match has ended',
+      message: 'Match Pick has ended',
     });
     socket.to(room.name).emit('pickSidePhaseEnded');
   }
+};
+
+export const checkMapAlreadyBanned = (room: any, map: string): boolean => {
+  if (room.matchConfig.matchBannedMaps.includes(map)) {
+    return true;
+  }
+  return false;
+};
+
+export const getCurrentDateWithPlusMileSecounds = (mileSecounds: number) => {
+  const currentDate = new Date();
+  const newDate = new Date(currentDate.getTime() + mileSecounds);
+  return newDate;
 };
 
 io.on('connection', (socket) => {
@@ -378,6 +241,7 @@ io.on('connection', (socket) => {
     rooms[rooms.indexOf(room)] = room;
 
     changeMatchTurn(room);
+
     insertMatchLog(roomId, {
       type: 'pick',
       map: mapName,
@@ -398,3 +262,16 @@ io.on('connection', (socket) => {
 });
 
 export const socketServer = io;
+
+/* depois da ação de banir, adicionar ao objeto o tempo maximo até a proxima ação
+tempo de agora + o tempo maximo configurado
+após isso, gerar um Job para verificar se o tempo maximo foi atingido com um setTimeout,
+caso o turno ainda não tenha sido trocado, trocar o turno e banir automaticamente um mapa aleatório.
+depois da ação de pick, adicionar ao objeto o tempo maximo até a proxima ação
+tempo de agora + o tempo maximo configurado
+após isso, gerar um Job para verificar se o tempo maximo foi atingido com um setTimeout,
+caso o turno ainda não tenha sido trocado, trocar o turno e banir automaticamente um mapa aleatório.
+*/
+
+/* criar um endpoint para ver o objeto da sala */
+/* criar um endpoint para criar uma room */

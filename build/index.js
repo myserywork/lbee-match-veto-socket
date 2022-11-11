@@ -1,8 +1,8 @@
 "use strict";
 // eslint-disable-next-line no-console
 Object.defineProperty(exports, "__esModule", { value: true });
-var server_1 = require("./socket/server");
-var client_1 = require("./socket/client");
+var server_1 = require("./socket/server/server");
+var client_1 = require("./socket/client/client");
 server_1.socketServer.emit('hello', 'world');
 // fakes room creation
 var randomString = Math.random().toString(36).substring(7);
@@ -38,7 +38,7 @@ var matchConfig = {
     roomName: randomString + ' Match Name',
     matchGameLogo: 'https://i.imgur.com/1Q9Q1Zm.png',
     matchGame: 'valorant',
-    matchBo: 1,
+    matchBo: 3,
     matchMaps: avaliableMaps,
     matchBannedMaps: [],
     matchPickedsMaps: [],
@@ -47,6 +47,8 @@ var matchConfig = {
     matchTurn: 'teamOne',
     matchPhase: 'ban',
     matchLogs: [],
+    timebetweenPhases: 20000,
+    nextPhaseTimeout: null,
 };
 client_1.socketClient.emit('createRoom', matchConfig);
 client_1.socketClient.emit('showRoom', randomString);
