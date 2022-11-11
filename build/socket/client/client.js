@@ -2,8 +2,12 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.socketClient2 = exports.socketClient = void 0;
 var socket_io_client_1 = require("socket.io-client");
-var socket = (0, socket_io_client_1.io)('http://localhost:3000', { query: { token: 'teamone' } });
-var socket2 = (0, socket_io_client_1.io)('http://localhost:3000', { query: { token: 'teamtwo' } });
+var socket = (0, socket_io_client_1.io)('http://localhost:3000', {
+    query: { token: 'teamA', roomId: '123456' },
+});
+var socket2 = (0, socket_io_client_1.io)('http://localhost:3000', {
+    query: { token: 'teamB', roomId: '123456' },
+});
 var teamSide = '';
 var teamSide2 = '';
 socket.on('connect', function () {

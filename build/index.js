@@ -17,21 +17,21 @@ var avaliableMaps = [
     'pearl',
 ];
 var alreadyBannedMaps = [];
-var teamOne = {
+var teamA = {
     name: 'Team One',
     logo: 'https://i.imgur.com/1Q9Q1Zm.png',
     picked: [],
     banned: [],
     side: '',
-    token: 'teamone',
+    token: 'teamA',
 };
-var teamTwo = {
+var teamB = {
     name: 'Team Two',
     logo: 'https://i.imgur.com/1Q9Q1Zm.png',
     picked: [],
     banned: [],
     side: '',
-    token: 'teamtwo',
+    token: 'teamB',
 };
 var matchConfig = {
     matchId: randomString,
@@ -42,9 +42,9 @@ var matchConfig = {
     matchMaps: avaliableMaps,
     matchBannedMaps: [],
     matchPickedsMaps: [],
-    matchTeamOne: teamOne,
-    matchTeamTwo: teamTwo,
-    matchTurn: 'teamOne',
+    matchTeamA: teamA,
+    matchTeamB: teamB,
+    matchTurn: 'teamA',
     matchPhase: 'ban',
     matchLogs: [],
     timebetweenPhases: 20000,
@@ -85,7 +85,7 @@ setInterval(function () {
     if (matchPhase === 'pickSide') {
         var maps = room.matchConfig.matchPickedsMaps;
         var notSelected = maps.filter(function (map) {
-            return map.teamOneSide === '' && map.teamTwoSide === '';
+            return map.teamASide === '' && map.teamBSide === '';
         });
         var randomMap = notSelected[Math.floor(Math.random() * notSelected.length)];
         var turn = room.matchConfig.matchTurn;
@@ -93,7 +93,7 @@ setInterval(function () {
         if (randomMap.name == null) {
             return;
         }
-        if (turn === 'teamOne') {
+        if (turn === 'teamA') {
             client_1.socketClient.emit('pickSide', randomString, randomMap.name, 'attack');
         }
         else {

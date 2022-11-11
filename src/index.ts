@@ -22,22 +22,22 @@ const avaliableMaps = [
 
 const alreadyBannedMaps = [];
 
-const teamOne = {
+const teamA = {
   name: 'Team One',
   logo: 'https://i.imgur.com/1Q9Q1Zm.png',
   picked: [],
   banned: [],
   side: '',
-  token: 'teamone',
+  token: 'teamA',
 };
 
-const teamTwo = {
+const teamB = {
   name: 'Team Two',
   logo: 'https://i.imgur.com/1Q9Q1Zm.png',
   picked: [],
   banned: [],
   side: '',
-  token: 'teamtwo',
+  token: 'teamB',
 };
 
 const matchConfig = {
@@ -49,9 +49,9 @@ const matchConfig = {
   matchMaps: avaliableMaps,
   matchBannedMaps: [],
   matchPickedsMaps: [],
-  matchTeamOne: teamOne,
-  matchTeamTwo: teamTwo,
-  matchTurn: 'teamOne',
+  matchTeamA: teamA,
+  matchTeamB: teamB,
+  matchTurn: 'teamA',
   matchPhase: 'ban',
   matchLogs: [],
   timebetweenPhases: 20000,
@@ -102,8 +102,8 @@ setInterval(() => {
   if (matchPhase === 'pickSide') {
     const maps = room.matchConfig.matchPickedsMaps;
     const notSelected = maps.filter(
-      (map: { teamOneSide: string; teamTwoSide: string }) =>
-        map.teamOneSide === '' && map.teamTwoSide === '',
+      (map: { teamASide: string; teamBSide: string }) =>
+        map.teamASide === '' && map.teamBSide === '',
     );
 
     const randomMap =
@@ -117,7 +117,7 @@ setInterval(() => {
       return;
     }
 
-    if (turn === 'teamOne') {
+    if (turn === 'teamA') {
       socketClient.emit('pickSide', randomString, randomMap.name, 'attack');
     } else {
       socketClient2.emit('pickSide', randomString, randomMap.name, 'attack');

@@ -1,7 +1,11 @@
 import { io } from 'socket.io-client';
 
-const socket = io('http://localhost:3000', { query: { token: 'teamone' } });
-const socket2 = io('http://localhost:3000', { query: { token: 'teamtwo' } });
+const socket = io('http://localhost:3000', {
+  query: { token: 'teamA', roomId: '123456' },
+});
+const socket2 = io('http://localhost:3000', {
+  query: { token: 'teamB', roomId: '123456' },
+});
 
 let teamSide = '';
 let teamSide2 = '';

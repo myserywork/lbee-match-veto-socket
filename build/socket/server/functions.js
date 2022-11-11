@@ -25,8 +25,8 @@ var isUserAllowedToVeto = function (socket, roomId) {
     var room = (0, exports.findRoom)(roomId);
     var token = (0, exports.getToken)(socket);
     if (room) {
-        if (room.matchConfig.matchTeamOne.token === token ||
-            room.matchConfig.matchTeamTwo.token === token) {
+        if (room.matchConfig.matchTeamA.token === token ||
+            room.matchConfig.matchTeamB.token === token) {
             return true;
         }
     }
@@ -34,7 +34,7 @@ var isUserAllowedToVeto = function (socket, roomId) {
 };
 exports.isUserAllowedToVeto = isUserAllowedToVeto;
 var removeTeamTokenFromOutput = function (room) {
-    var matchTeamOne = room.matchTeamOne, matchTeamTwo = room.matchTeamTwo, rest = __rest(room, ["matchTeamOne", "matchTeamTwo"]);
+    var matchTeamA = room.matchTeamA, matchTeamB = room.matchTeamB, rest = __rest(room, ["matchTeamA", "matchTeamB"]);
     return rest;
 };
 exports.removeTeamTokenFromOutput = removeTeamTokenFromOutput;
@@ -42,11 +42,11 @@ var getTeamSideByToken = function (socket, roomId) {
     var room = (0, exports.findRoom)(roomId);
     var token = (0, exports.getToken)(socket);
     if (room) {
-        if (room.matchConfig.matchTeamOne.token === token) {
-            return 'teamOne';
+        if (room.matchConfig.matchTeamA.token === token) {
+            return 'teamA';
         }
-        else if (room.matchConfig.matchTeamTwo.token === token) {
-            return 'teamTwo';
+        else if (room.matchConfig.matchTeamB.token === token) {
+            return 'teamB';
         }
     }
     return '';
@@ -69,11 +69,11 @@ var beginPickPhase = function (socket, roomId) {
 };
 exports.beginPickPhase = beginPickPhase;
 var getTeamSideObject = function (room, side) {
-    if (side === 'teamOne') {
-        return room.matchConfig.matchTeamOne;
+    if (side === 'teamA') {
+        return room.matchConfig.matchTeamA;
     }
-    else if (side === 'teamTwo') {
-        return room.matchConfig.matchTeamTwo;
+    else if (side === 'teamB') {
+        return room.matchConfig.matchTeamB;
     }
     return null;
 };
@@ -97,11 +97,11 @@ var getMatchTurn = function (room) {
 };
 exports.getMatchTurn = getMatchTurn;
 var changeMatchTurn = function (room) {
-    if (room.matchConfig.matchTurn === 'teamOne') {
-        room.matchConfig.matchTurn = 'teamTwo';
+    if (room.matchConfig.matchTurn === 'teamA') {
+        room.matchConfig.matchTurn = 'teamB';
     }
-    else if (room.matchConfig.matchTurn === 'teamTwo') {
-        room.matchConfig.matchTurn = 'teamOne';
+    else if (room.matchConfig.matchTurn === 'teamB') {
+        room.matchConfig.matchTurn = 'teamA';
     }
     server_1.rooms[server_1.rooms.indexOf(room)] = room;
 };
@@ -116,9 +116,9 @@ var beginChooseSidePhase = function (socket, roomId) {
 };
 exports.beginChooseSidePhase = beginChooseSidePhase;
 var checkMapAlreadyPicked = function (room, map) {
-    var teamOneMaps = room.matchConfig.matchTeamOne.picked;
-    var teamTwoMaps = room.matchConfig.matchTeamTwo.picked;
-    if (teamOneMaps.includes(map) || teamTwoMaps.includes(map)) {
+    var teamAMaps = room.matchConfig.matchTeamA.picked;
+    var teamBMaps = room.matchConfig.matchTeamB.picked;
+    if (teamAMaps.includes(map) || teamBMaps.includes(map)) {
         return true;
     }
     return false;
@@ -150,7 +150,7 @@ exports.beginPickSidePhase = beginPickSidePhase;
 var insertMatchLog = function (roomId, log) {
     var room = (0, exports.findRoom)(roomId);
     if (room) {
-        room.matchLogs.push(log);
+        room.matchLogs.push({ log: log, time: new Date() });
         server_1.rooms[server_1.rooms.indexOf(room)] = room;
     }
 };

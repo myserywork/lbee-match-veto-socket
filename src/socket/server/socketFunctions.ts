@@ -13,9 +13,9 @@ export const socketFunctions = {
           maxBans: matchConfig.matchMaps.length - matchConfig.matchBo,
           maxPicks: matchConfig.matchBo,
           maxMaps: matchConfig.matchMaps.length,
-          nextActionConvertedTimeToptBr: (
-            matchConfig.timebetweenPhases / 1000
-          ).toLocaleString('pt-BR'),
+          lastActionTime: (matchConfig.timebetweenPhases / 1000).toLocaleString(
+            'pt-BR',
+          ),
         },
         matchLogs: [],
       });

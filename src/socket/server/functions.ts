@@ -13,8 +13,8 @@ export const isUserAllowedToVeto = (socket: any, roomId: string) => {
   const token = getToken(socket);
   if (room) {
     if (
-      room.matchConfig.matchTeamOne.token === token ||
-      room.matchConfig.matchTeamTwo.token === token
+      room.matchConfig.matchTeamA.token === token ||
+      room.matchConfig.matchTeamB.token === token
     ) {
       return true;
     }
@@ -23,7 +23,7 @@ export const isUserAllowedToVeto = (socket: any, roomId: string) => {
 };
 
 export const removeTeamTokenFromOutput = (room: any) => {
-  const { matchTeamOne, matchTeamTwo, ...rest } = room;
+  const { matchTeamA, matchTeamB, ...rest } = room;
   return rest;
 };
 
@@ -31,10 +31,10 @@ export const getTeamSideByToken = (socket: any, roomId: string) => {
   const room = findRoom(roomId);
   const token = getToken(socket);
   if (room) {
-    if (room.matchConfig.matchTeamOne.token === token) {
-      return 'teamOne';
-    } else if (room.matchConfig.matchTeamTwo.token === token) {
-      return 'teamTwo';
+    if (room.matchConfig.matchTeamA.token === token) {
+      return 'teamA';
+    } else if (room.matchConfig.matchTeamB.token === token) {
+      return 'teamB';
     }
   }
   return '';
@@ -57,10 +57,10 @@ export const beginPickPhase = (socket: any, roomId: string) => {
 };
 
 export const getTeamSideObject = (room: any, side: string) => {
-  if (side === 'teamOne') {
-    return room.matchConfig.matchTeamOne;
-  } else if (side === 'teamTwo') {
-    return room.matchConfig.matchTeamTwo;
+  if (side === 'teamA') {
+    return room.matchConfig.matchTeamA;
+  } else if (side === 'teamB') {
+    return room.matchConfig.matchTeamB;
   }
   return null;
 };
@@ -84,10 +84,10 @@ export const getMatchTurn = (room: any) => {
 };
 
 export const changeMatchTurn = (room: any) => {
-  if (room.matchConfig.matchTurn === 'teamOne') {
-    room.matchConfig.matchTurn = 'teamTwo';
-  } else if (room.matchConfig.matchTurn === 'teamTwo') {
-    room.matchConfig.matchTurn = 'teamOne';
+  if (room.matchConfig.matchTurn === 'teamA') {
+    room.matchConfig.matchTurn = 'teamB';
+  } else if (room.matchConfig.matchTurn === 'teamB') {
+    room.matchConfig.matchTurn = 'teamA';
   }
   rooms[rooms.indexOf(room)] = room;
 };
@@ -102,9 +102,9 @@ export const beginChooseSidePhase = (socket: any, roomId: string) => {
 };
 
 export const checkMapAlreadyPicked = (room: any, map: string) => {
-  const teamOneMaps = room.matchConfig.matchTeamOne.picked;
-  const teamTwoMaps = room.matchConfig.matchTeamTwo.picked;
-  if (teamOneMaps.includes(map) || teamTwoMaps.includes(map)) {
+  const teamAMaps = room.matchConfig.matchTeamA.picked;
+  const teamBMaps = room.matchConfig.matchTeamB.picked;
+  if (teamAMaps.includes(map) || teamBMaps.includes(map)) {
     return true;
   }
   return false;
@@ -136,7 +136,7 @@ export const beginPickSidePhase = (socket: any, roomId: string) => {
 export const insertMatchLog = (roomId: string, log: any) => {
   const room = findRoom(roomId);
   if (room) {
-    room.matchLogs.push(log);
+    room.matchLogs.push({ log: log, time: new Date() });
     rooms[rooms.indexOf(room)] = room;
   }
 };
