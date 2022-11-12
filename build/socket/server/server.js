@@ -42,12 +42,15 @@ io.on('connection', function (socket) {
     }
     socket.on('joinRoom', function (roomId) {
         var room = (0, exports.findRoom)(roomId);
-        socket.join(room.name);
         if (room) {
+            socket.join(room.name);
             var token = socket.handshake.query.token;
             var teamSide = (0, exports.getTeamSideByToken)(token, roomId);
             socket.emit('joinedRoom', [room, teamSide]);
             console.log('joinedRoom', teamSide);
+        }
+        else {
+            socket.emit('roomNotFound');
         }
         setInterval(function () {
             var filteredClientsInRoom = exports.clients.filter(function (client) { return client.roomId === socket.handshake.query.roomId; });
@@ -94,6 +97,9 @@ io.on('connection', function (socket) {
         var room = (0, exports.findRoom)(roomId);
         if (room) {
             socket.emit('roomShown', room);
+        }
+        else {
+            socket.emit('roomNotFound');
         }
     });
 });

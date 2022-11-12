@@ -17,6 +17,7 @@ export default class gameRoom {
   logs: any[] = [];
   lastActionId: any;
   timeLeft: any;
+  nonPickedMaps: any;
   autoActionStarted: boolean;
 
   constructor(data: {
@@ -145,7 +146,10 @@ export default class gameRoom {
         team: team,
       });
       this.changeTurn();
-      if (this.checkBannedMax()) this.currentPhase = 'pick';
+      if (this.checkBannedMax()) {
+        this.nonPickedMaps = this.getNonPickedMaps();
+        this.currentPhase = 'pick';
+      }
       return true;
     } else {
       console.log('mapNotFound');
@@ -221,6 +225,7 @@ export default class gameRoom {
             const sides = ['attack', 'defense'];
             const randomSide = sides[Math.floor(Math.random() * sides.length)];
             this.pickMapSide(randomMap, inverseTeam, randomSide, timeout);
+            this.nonPickedMaps = this.getNonPickedMaps();
           }
         }
         if (this.currentPhase === 'ban') {

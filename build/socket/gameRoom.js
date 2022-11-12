@@ -119,14 +119,6 @@ var gameRoom = /** @class */ (function () {
         if (timeout === void 0) { timeout = false; }
         if (this.checkBannedMax())
             return false;
-        console.log({ currentMaps: this.maps });
-        console.log({
-            action: 'ban',
-            map: mapName,
-            team: team,
-            mapObj: this.maps[mapName],
-            timeout: timeout,
-        });
         if (!this.checkTurn(team))
             return false;
         if (this.currentPhase !== 'ban')
