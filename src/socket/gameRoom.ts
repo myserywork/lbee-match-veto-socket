@@ -264,6 +264,8 @@ export default class gameRoom {
       });
 
       this.changeTurn();
+      this.nonPickedMaps = this.getNonPickedMaps();
+
       if (this.getPickedMaps().length >= this.maxPicks) {
         this.currentPhase = 'finished';
       }
