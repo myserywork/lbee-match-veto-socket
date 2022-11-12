@@ -19,12 +19,6 @@ setInterval(() => {
   console.log({ rooms: rooms, clients: clients });
 }, 10000);
 
-const broadcastToAll = (room: any, event: string, data: any) => {
-  room.clients.forEach((client: any) => {
-    client.emit(event, data);
-  });
-};
-
 const killInactiveSockets = () => {
   clients.forEach((client: any) => {
     if (client.disconnected) {
