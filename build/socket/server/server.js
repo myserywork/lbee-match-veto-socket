@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.socketServer = exports.findRoom = exports.createRoom = exports.getTeamSideByToken = exports.clients = exports.rooms = void 0;
+exports.socketServer = exports.findRoom = exports.createRoom = exports.getTeamSideByToken = exports.broadCastRoom = exports.clients = exports.rooms = void 0;
 var http_1 = require("http");
 var socket_io_1 = require("socket.io");
 var gameRoom_1 = __importDefault(require("../gameRoom"));
@@ -30,6 +30,15 @@ var killInactiveSockets = function () {
 setInterval(function () {
     killInactiveSockets();
 }, 10000);
+var broadCastRoom = function (socket, roomId) {
+    var room = (0, exports.findRoom)(roomId);
+    if (room) {
+        (room.teamA.token = null),
+            (room.teamB.token = null),
+            socket.to(room.name).emit('roomShown', room);
+    }
+};
+exports.broadCastRoom = broadCastRoom;
 io.on('connection', function (socket) {
     console.log('New connection', socket.id);
     if (socket.handshake.query.token) {
@@ -41,10 +50,12 @@ io.on('connection', function (socket) {
     }
     socket.on('joinRoom', function (roomId) {
         var room = (0, exports.findRoom)(roomId);
+        socket.join(room.name);
         if (room) {
             var token = socket.handshake.query.token;
             var teamSide = (0, exports.getTeamSideByToken)(token, roomId);
             socket.emit('joinedRoom', [room, teamSide]);
+            (0, exports.broadCastRoom)(socket, roomId);
             console.log('joinedRoom', teamSide);
         }
     });
@@ -54,6 +65,7 @@ io.on('connection', function (socket) {
             var teamSide = (0, exports.getTeamSideByToken)(socket.handshake.query.token, roomId);
             room.banMap(mapName, teamSide);
             socket.emit('mapBanned', mapName);
+            (0, exports.broadCastRoom)(socket, roomId);
             console.log('mapBanned', mapName);
         }
     });
@@ -63,6 +75,7 @@ io.on('connection', function (socket) {
             var teamSide = (0, exports.getTeamSideByToken)(socket.handshake.query.token, roomId);
             room.pickMapSide(mapName, side, teamSide);
             socket.emit('mapSidePicked', mapName, side);
+            (0, exports.broadCastRoom)(socket, roomId);
             console.log('mapSidePicked', mapName, side);
         }
     });
@@ -72,6 +85,7 @@ io.on('connection', function (socket) {
             (room.teamA.token = null),
                 (room.teamB.token = null),
                 socket.emit('roomShown', room);
+            (0, exports.broadCastRoom)(socket, roomId);
             console.log('roomShown');
         }
     });
