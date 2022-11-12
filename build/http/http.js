@@ -18,8 +18,15 @@ exports.http = void 0;
 var express_1 = __importDefault(require("express"));
 var body_parser_1 = __importDefault(require("body-parser"));
 var server_1 = require("../socket/server/server");
+var cors_1 = __importDefault(require("cors"));
 var app = (0, express_1.default)();
 app.use(body_parser_1.default.json());
+app.use((0, cors_1.default)());
+app.use(function (req, res, next) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    next();
+});
 exports.http = app;
 var generateUniqueId = function () {
     return Math.random().toString(36).substr(2, 9);
@@ -45,7 +52,7 @@ exports.http.post('/createRoom', function (req, res) {
         };
     });
     (0, server_1.createRoom)(matchConfig);
-    res.send({ mConfig: matchConfig });
+    res.send({ matchData: matchConfig });
 });
 exports.http.get('/rooms', function (req, res) {
     res.send(server_1.rooms);

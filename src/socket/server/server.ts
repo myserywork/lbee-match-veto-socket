@@ -1,12 +1,41 @@
+import { createServer } from 'http';
 import { Server } from 'socket.io';
+
 import gameRoom from '../gameRoom';
-const io = new Server(3000);
+
+const httpServer = createServer();
+const io = new Server(httpServer, {
+  cors: {
+    origin: '*',
+  },
+});
+
+httpServer.listen(3000);
 
 export const rooms: any[] = [];
 export const clients: any[] = [];
 
 setInterval(() => {
   console.log({ rooms: rooms, clients: clients });
+}, 10000);
+
+const broadcastToAll = (room: any, event: string, data: any) => {
+  room.clients.forEach((client: any) => {
+    client.emit(event, data);
+  });
+};
+
+const killInactiveSockets = () => {
+  clients.forEach((client: any) => {
+    if (client.disconnected) {
+      const clientIndex = clients.indexOf(client);
+      clients.splice(clientIndex, 1);
+    }
+  });
+};
+
+setInterval(() => {
+  killInactiveSockets();
 }, 10000);
 
 io.on('connection', (socket) => {
@@ -16,6 +45,7 @@ io.on('connection', (socket) => {
     clients.push({
       id: socket.id,
       token: socket.handshake.query.token,
+      io: socket,
     });
   }
 
@@ -24,6 +54,7 @@ io.on('connection', (socket) => {
     if (room) {
       const token = socket.handshake.query.token;
       const teamSide = getTeamSideByToken(token, roomId);
+
       socket.emit('joinedRoom', [room, teamSide]);
       console.log('joinedRoom', teamSide);
     }
