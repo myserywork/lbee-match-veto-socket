@@ -46,12 +46,14 @@ io.on('connection', (socket) => {
 
   socket.on('joinRoom', (roomId) => {
     const room = findRoom(roomId);
-    socket.join(room.name);
     if (room) {
+      socket.join(room.name);
       const token = socket.handshake.query.token;
       const teamSide = getTeamSideByToken(token, roomId);
       socket.emit('joinedRoom', [room, teamSide]);
       console.log('joinedRoom', teamSide);
+    } else {
+      socket.emit('roomNotFound');
     }
 
     setInterval(() => {
@@ -102,6 +104,8 @@ io.on('connection', (socket) => {
     const room = findRoom(roomId);
     if (room) {
       socket.emit('roomShown', room);
+    } else {
+      socket.emit('roomNotFound');
     }
   });
 });
