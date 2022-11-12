@@ -1,7 +1,4 @@
 export default class gameRoom {
-  static findRoom(roomId: string | string[] | undefined) {
-    throw new Error('Method not implemented.');
-  }
   teamA: any;
   teamB: any;
   currentTurn: string;
@@ -38,7 +35,7 @@ export default class gameRoom {
     this.currentPhase = 'ban';
     this.game = data.game;
     this.matchesCount = data.matchesCount;
-    this.id = data.matchId;
+    this.id = '' + data.matchId;
     this.maps = data.maps;
     this.logo = data.logo;
     this.maxBans = Object.keys(data.maps).length - data.matchesCount;
@@ -137,6 +134,7 @@ export default class gameRoom {
   banMap(mapName: string, team: any, timeout = false) {
     if (this.checkBannedMax()) return false;
     if (!this.checkTurn(team)) return false;
+    if (this.currentPhase !== 'ban') return false;
     if (this.maps[mapName]) {
       this.maps[mapName].banned = true;
       this.maps[mapName].bannedBy = team;
@@ -148,7 +146,9 @@ export default class gameRoom {
       });
       this.changeTurn();
       if (this.checkBannedMax()) this.currentPhase = 'pick';
+      return true;
     } else {
+      console.log('mapNotFound');
       return false;
     }
   }
@@ -262,6 +262,7 @@ export default class gameRoom {
       if (this.getPickedMaps().length >= this.maxPicks) {
         this.currentPhase = 'finished';
       }
+      return true;
     } else {
       return false;
     }

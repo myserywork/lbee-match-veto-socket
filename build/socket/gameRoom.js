@@ -26,7 +26,7 @@ var gameRoom = /** @class */ (function () {
         this.currentPhase = 'ban';
         this.game = data.game;
         this.matchesCount = data.matchesCount;
-        this.id = data.matchId;
+        this.id = '' + data.matchId;
         this.maps = data.maps;
         this.logo = data.logo;
         this.maxBans = Object.keys(data.maps).length - data.matchesCount;
@@ -42,9 +42,6 @@ var gameRoom = /** @class */ (function () {
             _this.updateTimeLeft();
         }, 100);
     }
-    gameRoom.findRoom = function (roomId) {
-        throw new Error('Method not implemented.');
-    };
     gameRoom.prototype.currentData = function () {
         return {
             teamA: this.teamA,
@@ -122,7 +119,17 @@ var gameRoom = /** @class */ (function () {
         if (timeout === void 0) { timeout = false; }
         if (this.checkBannedMax())
             return false;
+        console.log({ currentMaps: this.maps });
+        console.log({
+            action: 'ban',
+            map: mapName,
+            team: team,
+            mapObj: this.maps[mapName],
+            timeout: timeout,
+        });
         if (!this.checkTurn(team))
+            return false;
+        if (this.currentPhase !== 'ban')
             return false;
         if (this.maps[mapName]) {
             this.maps[mapName].banned = true;
@@ -136,8 +143,10 @@ var gameRoom = /** @class */ (function () {
             this.changeTurn();
             if (this.checkBannedMax())
                 this.currentPhase = 'pick';
+            return true;
         }
         else {
+            console.log('mapNotFound');
             return false;
         }
     };
@@ -245,6 +254,7 @@ var gameRoom = /** @class */ (function () {
             if (this.getPickedMaps().length >= this.maxPicks) {
                 this.currentPhase = 'finished';
             }
+            return true;
         }
         else {
             return false;

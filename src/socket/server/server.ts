@@ -1,6 +1,5 @@
 import { createServer } from 'http';
-import { Server, Socket } from 'socket.io';
-import { DefaultEventsMap } from 'socket.io/dist/typed-events';
+import { Server } from 'socket.io';
 
 import gameRoom from '../gameRoom';
 
@@ -56,7 +55,6 @@ io.on('connection', (socket) => {
     }
 
     setInterval(() => {
-      console.log('room', socket.handshake.query.roomId);
       const filteredClientsInRoom = clients.filter(
         (client) => client.roomId === socket.handshake.query.roomId,
       );
@@ -68,34 +66,42 @@ io.on('connection', (socket) => {
   });
 
   socket.on('banMap', (roomId, mapName) => {
+    mapName = mapName.toLowerCase();
     const room = findRoom(roomId);
     if (room) {
       const teamSide = getTeamSideByToken(socket.handshake.query.token, roomId);
-      room.banMap(mapName, teamSide);
-      socket.emit('mapBanned', mapName);
-      console.log('mapBanned', mapName);
+      const bannedRoom = room.banMap(mapName, teamSide);
+      if (bannedRoom) {
+        socket.emit('mapBanned', mapName);
+      } else {
+        socket.emit('mapNOTBanned', mapName);
+      }
+    } else {
+      socket.emit('roomNotFound');
     }
   });
 
   socket.on('pickMapSide', (roomId, mapName, side) => {
+    mapName = mapName.toLowerCase();
+
     const room = findRoom(roomId);
     if (room) {
       const teamSide = getTeamSideByToken(socket.handshake.query.token, roomId);
-      room.pickMapSide(mapName, side, teamSide);
-      socket.emit('mapSidePicked', mapName, side);
-
-      console.log('mapSidePicked', mapName, side);
+      const pickMapSide = room.pickMapSide(mapName, side, teamSide);
+      if (pickMapSide) {
+        socket.emit('mapPicked', mapName);
+      } else {
+        socket.emit('mapNOTPicked', mapName);
+      }
+    } else {
+      socket.emit('roomNotFound');
     }
   });
 
   socket.on('showRoom', (roomId) => {
     const room = findRoom(roomId);
     if (room) {
-      (room.teamA.token = null),
-        (room.teamB.token = null),
-        socket.emit('roomShown', room);
-
-      console.log('roomShown');
+      socket.emit('roomShown', room);
     }
   });
 });
@@ -106,9 +112,9 @@ export const getTeamSideByToken = (
 ) => {
   const room = findRoom(roomId);
   if (room) {
-    if (room.teamA.token === token) {
+    if (room.teamA.token == token) {
       return 'teamA';
-    } else if (room.teamB.token === token) {
+    } else if (room.teamB.token == token) {
       return 'teamB';
     }
   }

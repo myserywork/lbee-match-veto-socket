@@ -50,49 +50,60 @@ io.on('connection', function (socket) {
             console.log('joinedRoom', teamSide);
         }
         setInterval(function () {
-            console.log('room', socket.handshake.query.roomId);
             var filteredClientsInRoom = exports.clients.filter(function (client) { return client.roomId === socket.handshake.query.roomId; });
             for (var i = 0; i < filteredClientsInRoom.length; i++) {
                 filteredClientsInRoom[i].io.emit('roomShown', room);
-                console.log('roomShown', room);
             }
         }, 1000);
     });
     socket.on('banMap', function (roomId, mapName) {
+        mapName = mapName.toLowerCase();
         var room = (0, exports.findRoom)(roomId);
         if (room) {
             var teamSide = (0, exports.getTeamSideByToken)(socket.handshake.query.token, roomId);
-            room.banMap(mapName, teamSide);
-            socket.emit('mapBanned', mapName);
-            console.log('mapBanned', mapName);
+            var bannedRoom = room.banMap(mapName, teamSide);
+            if (bannedRoom) {
+                socket.emit('mapBanned', mapName);
+            }
+            else {
+                socket.emit('mapNOTBanned', mapName);
+            }
+        }
+        else {
+            socket.emit('roomNotFound');
         }
     });
     socket.on('pickMapSide', function (roomId, mapName, side) {
+        mapName = mapName.toLowerCase();
         var room = (0, exports.findRoom)(roomId);
         if (room) {
             var teamSide = (0, exports.getTeamSideByToken)(socket.handshake.query.token, roomId);
-            room.pickMapSide(mapName, side, teamSide);
-            socket.emit('mapSidePicked', mapName, side);
-            console.log('mapSidePicked', mapName, side);
+            var pickMapSide = room.pickMapSide(mapName, side, teamSide);
+            if (pickMapSide) {
+                socket.emit('mapPicked', mapName);
+            }
+            else {
+                socket.emit('mapNOTPicked', mapName);
+            }
+        }
+        else {
+            socket.emit('roomNotFound');
         }
     });
     socket.on('showRoom', function (roomId) {
         var room = (0, exports.findRoom)(roomId);
         if (room) {
-            (room.teamA.token = null),
-                (room.teamB.token = null),
-                socket.emit('roomShown', room);
-            console.log('roomShown');
+            socket.emit('roomShown', room);
         }
     });
 });
 var getTeamSideByToken = function (token, roomId) {
     var room = (0, exports.findRoom)(roomId);
     if (room) {
-        if (room.teamA.token === token) {
+        if (room.teamA.token == token) {
             return 'teamA';
         }
-        else if (room.teamB.token === token) {
+        else if (room.teamB.token == token) {
             return 'teamB';
         }
     }
