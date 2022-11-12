@@ -11,7 +11,7 @@ const roomCfg =
   '{"game":"valorant","matchTurnInterval":20000,"matchesCount":3,"matchId":123456,"teamA":{"name":"TeamA","picture":"https://credimotors.com.br/cdn/valorant/ascent.png"},"teamB":{"name":"TeamB","picture":"https://credimotors.com.br/cdn/valorant/ascent.png"},"maps":{"ascent":{"name":"Ascent","picture":"https://credimotors.com.br/cdn/valorant/ascent.png"},"bind":{"name":"Bind","picture":"https://credimotors.com.br/cdn/valorant/ascent.png"},"breeze":{"name":"Breeze","picture":"https://credimotors.com.br/cdn/valorant/ascent.png"},"haven":{"name":"Haven","picture":"https://credimotors.com.br/cdn/valorant/ascent.png"},"icebox":{"name":"Icebox","picture":"https://credimotors.com.br/cdn/valorant/ascent.png"},"split":{"name":"Split","picture":"https://credimotors.com.br/cdn/valorant/ascent.png"},"fracture":{"name":"Fracture","picture":"https://credimotors.com.br/cdn/valorant/ascent.png"},"pearl":{"name":"Pearl","picture":"https://credimotors.com.br/cdn/valorant/ascent.png"}},"picture":"https://credimotors.com.br/cdn/valorant/ascent.png"}';
 
 const room = createRoom(JSON.parse(roomCfg));
-/*
+
 setTimeout(() => {
   socketClient.emit('joinRoom', roomId);
   socketClient2.emit('joinRoom', roomId);
@@ -19,7 +19,6 @@ setTimeout(() => {
   socketClient.emit('banMap', roomId, 'ascent');
   socketClient2.emit('banMap', roomId, 'bind');
 }, 10000);
-*/
 
 setInterval(() => {
   const gameRoom = rooms.find((room) => room.id === roomId);
@@ -53,4 +52,4 @@ setInterval(() => {
       });
     }
   }
-}, 1000);
+}, 500000);

@@ -42,6 +42,9 @@ var gameRoom = /** @class */ (function () {
             _this.updateTimeLeft();
         }, 100);
     }
+    gameRoom.findRoom = function (roomId) {
+        throw new Error('Method not implemented.');
+    };
     gameRoom.prototype.currentData = function () {
         return {
             teamA: this.teamA,

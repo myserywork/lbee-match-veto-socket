@@ -36,6 +36,7 @@ io.on('connection', function (socket) {
         exports.clients.push({
             id: socket.id,
             token: socket.handshake.query.token,
+            roomId: socket.handshake.query.roomId,
             io: socket,
         });
     }
@@ -48,6 +49,14 @@ io.on('connection', function (socket) {
             socket.emit('joinedRoom', [room, teamSide]);
             console.log('joinedRoom', teamSide);
         }
+        setInterval(function () {
+            console.log('room', socket.handshake.query.roomId);
+            var filteredClientsInRoom = exports.clients.filter(function (client) { return client.roomId === socket.handshake.query.roomId; });
+            for (var i = 0; i < filteredClientsInRoom.length; i++) {
+                filteredClientsInRoom[i].io.emit('roomShown', room);
+                console.log('roomShown', room);
+            }
+        }, 1000);
     });
     socket.on('banMap', function (roomId, mapName) {
         var room = (0, exports.findRoom)(roomId);

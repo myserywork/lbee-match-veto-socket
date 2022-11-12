@@ -1,4 +1,7 @@
 export default class gameRoom {
+  static findRoom(roomId: string | string[] | undefined) {
+    throw new Error('Method not implemented.');
+  }
   teamA: any;
   teamB: any;
   currentTurn: string;
