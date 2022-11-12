@@ -19,11 +19,6 @@ exports.clients = [];
 setInterval(function () {
     console.log({ rooms: exports.rooms, clients: exports.clients });
 }, 10000);
-var broadcastToAll = function (room, event, data) {
-    room.clients.forEach(function (client) {
-        client.emit(event, data);
-    });
-};
 var killInactiveSockets = function () {
     exports.clients.forEach(function (client) {
         if (client.disconnected) {
@@ -45,9 +40,6 @@ io.on('connection', function (socket) {
         });
     }
     socket.on('joinRoom', function (roomId) {
-        for (var i = 0; i < 10; i++) {
-            console.log('joinRoomXXXX', roomId);
-        }
         var room = (0, exports.findRoom)(roomId);
         if (room) {
             var token = socket.handshake.query.token;
