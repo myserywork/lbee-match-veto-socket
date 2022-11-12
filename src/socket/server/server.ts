@@ -33,18 +33,6 @@ setInterval(() => {
   killInactiveSockets();
 }, 10000);
 
-export const broadCastRoom = (
-  socket: Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>,
-  roomId: string,
-) => {
-  const room = findRoom(roomId);
-  if (room) {
-    (room.teamA.token = null),
-      (room.teamB.token = null),
-      socket.to(room.name).emit('roomShown', room);
-  }
-};
-
 io.on('connection', (socket) => {
   console.log('New connection', socket.id);
 
@@ -62,10 +50,7 @@ io.on('connection', (socket) => {
     if (room) {
       const token = socket.handshake.query.token;
       const teamSide = getTeamSideByToken(token, roomId);
-
       socket.emit('joinedRoom', [room, teamSide]);
-      broadCastRoom(socket, roomId);
-
       console.log('joinedRoom', teamSide);
     }
   });
@@ -76,7 +61,6 @@ io.on('connection', (socket) => {
       const teamSide = getTeamSideByToken(socket.handshake.query.token, roomId);
       room.banMap(mapName, teamSide);
       socket.emit('mapBanned', mapName);
-      broadCastRoom(socket, roomId);
 
       console.log('mapBanned', mapName);
     }
@@ -88,7 +72,6 @@ io.on('connection', (socket) => {
       const teamSide = getTeamSideByToken(socket.handshake.query.token, roomId);
       room.pickMapSide(mapName, side, teamSide);
       socket.emit('mapSidePicked', mapName, side);
-      broadCastRoom(socket, roomId);
 
       console.log('mapSidePicked', mapName, side);
     }
@@ -100,7 +83,7 @@ io.on('connection', (socket) => {
       (room.teamA.token = null),
         (room.teamB.token = null),
         socket.emit('roomShown', room);
-      broadCastRoom(socket, roomId);
+
       console.log('roomShown');
     }
   });
