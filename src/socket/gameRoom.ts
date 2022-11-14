@@ -49,6 +49,7 @@ export default class gameRoom {
     this.lastActionTime = 0;
     this.lastActionId = 1;
     this.autoActionStarted = false;
+    this.turnDisplayText = `Aguardando o time ${data.teamA.name} banir o primeiro mapa`;
     setInterval(() => {
       if (this.currentPhase === 'finished') return;
       this.updateTimeLeft();
@@ -119,19 +120,45 @@ export default class gameRoom {
       this.currentTurn = 'teamA';
     }
   }
+  toOrdinal(number: number) {
+    if (number == 1) {
+      return 'Primeiro';
+    } else if (number == 2) {
+      return 'Segundo';
+    } else if (number == 3) {
+      return 'Terceiro';
+    } else if (number == 4) {
+      return 'Quarto';
+    } else if (number == 5) {
+      return 'Quinto';
+    } else if (number == 6) {
+      return 'Sexto';
+    }
+    return '';
+  }
   getTurnDisplayText() {
-    let msg = '';
-    if (this.currentTurn === 'teamA') {
-      msg = this.teamA.name;
-    } else if (this.currentTurn === 'teamB') {
-      msg = this.teamB.name;
-    }
-    if (this.currentPhase === 'ban') {
-      msg += ' is banning';
-    } else if (this.currentPhase === 'pick') {
-      msg += ' is picking';
-    }
-    this.turnDisplayText = msg;
+    setInterval(() => {
+      let team;
+      if (this.currentTurn === 'teamA') {
+        team = this.teamA;
+      } else {
+        team = this.teamB;
+      }
+
+      if (this.currentPhase === 'ban') {
+        const bannedMapCount = this.getBannedMaps().length;
+        const bannedMapCountToOrdinal = this.toOrdinal(bannedMapCount + 1);
+        this.turnDisplayText = `${team.name} bane o ${bannedMapCountToOrdinal} mapa`;
+      } else if (this.currentPhase === 'pick') {
+        const pickMap = this.nonPickedMaps[0];
+        this.turnDisplayText = `${
+          team.name
+        } escolhe o lado do mapa ${pickMap.toUpperCase()}`;
+      }
+      if (this.currentPhase === 'finished') {
+        this.turnDisplayText = `Resultado`;
+      }
+    }, 100);
   }
 
   findMap(mapName: string) {

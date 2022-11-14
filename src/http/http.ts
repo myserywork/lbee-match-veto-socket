@@ -1,9 +1,10 @@
-import express from 'express';
+import * as express from 'express';
+
 import bodyParser from 'body-parser';
 import { createRoom, rooms } from '../socket/server/server';
 import cors from 'cors';
 
-const app = express();
+const app = express.default();
 
 app.use(bodyParser.json());
 app.use(cors());
@@ -17,13 +18,13 @@ app.use(function (req, res, next) {
   next();
 });
 
-export const http = app;
-
 const generateUniqueId = () => {
   return Math.random().toString(36).substr(2, 9);
 };
 
-http.post('/createRoom', (req, res) => {
+export const httpServer = app;
+
+httpServer.post('/createRoom', (req, res) => {
   const checkIfRoomExists = rooms.find(
     (room) => room.name === req.body.roomName,
   );
@@ -69,11 +70,11 @@ http.post('/createRoom', (req, res) => {
   res.send({ matchData: matchConfig });
 });
 
-http.get('/rooms', (req, res) => {
+httpServer.get('/rooms', (req, res) => {
   res.send(rooms);
 });
 
-http.get('/room/:roomId', (req, res) => {
+httpServer.get('/room/:roomId', (req, res) => {
   const { roomId } = req.params;
   const room = rooms.find((room) => room.id === roomId);
   if (room) {

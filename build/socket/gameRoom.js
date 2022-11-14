@@ -20,6 +20,7 @@ var gameRoom = /** @class */ (function () {
             var timeLeft = now.getTime() - _this.lastActionTime.getTime();
             _this.timeLeft = timeLeft;
         };
+        this.initData = data;
         this.teamA = data.teamA;
         this.teamB = data.teamB;
         this.currentTurn = 'teamA';
@@ -36,6 +37,7 @@ var gameRoom = /** @class */ (function () {
         this.lastActionTime = 0;
         this.lastActionId = 1;
         this.autoActionStarted = false;
+        this.turnDisplayText = "Aguardando o time ".concat(data.teamA.name, " banir o primeiro mapa");
         setInterval(function () {
             if (_this.currentPhase === 'finished')
                 return;
@@ -91,12 +93,58 @@ var gameRoom = /** @class */ (function () {
         return this.maps[mapName];
     };
     gameRoom.prototype.changeTurn = function () {
+        this.getTurnDisplayText();
         if (this.currentTurn === 'teamA') {
             this.currentTurn = 'teamB';
         }
         else if (this.currentTurn === 'teamB') {
             this.currentTurn = 'teamA';
         }
+    };
+    gameRoom.prototype.toOrdinal = function (number) {
+        if (number == 1) {
+            return 'Primeiro';
+        }
+        else if (number == 2) {
+            return 'Segundo';
+        }
+        else if (number == 3) {
+            return 'Terceiro';
+        }
+        else if (number == 4) {
+            return 'Quarto';
+        }
+        else if (number == 5) {
+            return 'Quinto';
+        }
+        else if (number == 6) {
+            return 'Sexto';
+        }
+        return '';
+    };
+    gameRoom.prototype.getTurnDisplayText = function () {
+        var _this = this;
+        setInterval(function () {
+            var team;
+            if (_this.currentTurn === 'teamA') {
+                team = _this.teamA;
+            }
+            else {
+                team = _this.teamB;
+            }
+            if (_this.currentPhase === 'ban') {
+                var bannedMapCount = _this.getBannedMaps().length;
+                var bannedMapCountToOrdinal = _this.toOrdinal(bannedMapCount + 1);
+                _this.turnDisplayText = "".concat(team.name, " bane o ").concat(bannedMapCountToOrdinal, " mapa");
+            }
+            else if (_this.currentPhase === 'pick') {
+                var pickMap = _this.nonPickedMaps[0];
+                _this.turnDisplayText = "".concat(team.name, " escolhe o lado do mapa ").concat(pickMap.toUpperCase());
+            }
+            if (_this.currentPhase === 'finished') {
+                _this.turnDisplayText = "Resultado";
+            }
+        }, 100);
     };
     gameRoom.prototype.findMap = function (mapName) {
         return this.maps[mapName];

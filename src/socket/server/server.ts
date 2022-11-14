@@ -1,16 +1,17 @@
-import { createServer } from 'http';
-import { Server } from 'socket.io';
-
+import * as socketio from 'socket.io';
 import gameRoom from '../gameRoom';
+import { httpServer } from '../../http/http';
+import * as http from 'http';
+import cors from 'cors';
 
-const httpServer = createServer();
-const io = new Server(httpServer, {
+httpServer.use(cors());
+const server = http.createServer(httpServer);
+
+const io = new socketio.Server(server, {
   cors: {
     origin: '*',
   },
 });
-
-httpServer.listen(3000);
 
 export const rooms: any[] = [];
 export const clients: any[] = [];
@@ -134,6 +135,7 @@ export const findRoom = (roomId: string) => {
 };
 
 export const socketServer = io;
+server.listen(8080, () => console.log('Server is running on port 8080'));
 
 /* depois da ação de banir, adicionar ao objeto o tempo maximo até a proxima ação
 tempo de agora + o tempo maximo configurado
