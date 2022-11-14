@@ -19,6 +19,7 @@ export default class gameRoom {
   timeLeft: any;
   nonPickedMaps: any;
   autoActionStarted: boolean;
+  turnDisplayText: any;
 
   constructor(data: {
     teamA: any;
@@ -109,12 +110,28 @@ export default class gameRoom {
     return this.maps[mapName];
   }
   changeTurn() {
+    this.getTurnDisplayText();
     if (this.currentTurn === 'teamA') {
       this.currentTurn = 'teamB';
     } else if (this.currentTurn === 'teamB') {
       this.currentTurn = 'teamA';
     }
   }
+  getTurnDisplayText() {
+    let msg = '';
+    if (this.currentTurn === 'teamA') {
+      msg = this.teamA.name;
+    } else if (this.currentTurn === 'teamB') {
+      msg = this.teamB.name;
+    }
+    if (this.currentPhase === 'ban') {
+      msg += ' is banning';
+    } else if (this.currentPhase === 'pick') {
+      msg += ' is picking';
+    }
+    this.turnDisplayText = msg;
+  }
+
   findMap(mapName: string) {
     return this.maps[mapName];
   }
