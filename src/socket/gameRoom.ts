@@ -167,7 +167,6 @@ export default class gameRoom {
   }
 
   getNonPickedMaps() {
-    if (this.currentPhase === 'ban') return false;
     const nonPickedMaps = [];
     for (const map in this.maps) {
       if (!this.maps[map].picked) {
