@@ -55,7 +55,7 @@ var generateUniqueId = function () {
 };
 exports.httpServer = app;
 exports.httpServer.post('/createRoom', function (req, res) {
-    var checkIfRoomExists = server_1.rooms.find(function (room) { return room.name === req.body.roomName; });
+    var checkIfRoomExists = server_1.rooms.find(function (room) { return room.id === req.body.matchId; });
     if (checkIfRoomExists) {
         server_1.rooms.slice(server_1.rooms.indexOf(checkIfRoomExists), 1);
     }

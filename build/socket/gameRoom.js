@@ -176,7 +176,7 @@ var gameRoom = /** @class */ (function () {
             this.maps[mapName].bannedBy = team;
             this.maps[mapName].actionAt = new Date();
             this.insertLogs({
-                action: timeout ? 'timeout ban' : 'ban',
+                action: timeout ? 'Banido automaticamente pelo sistema' : 'ban',
                 map: mapName,
                 team: team,
             });
@@ -304,7 +304,7 @@ var gameRoom = /** @class */ (function () {
                 this.maps[mapName].attack = team === 'teamA' ? 'teamB' : 'teamA';
             }
             this.insertLogs({
-                action: timeout ? 'timeout pick' : 'pick',
+                action: timeout ? 'Escolhido automaticamente pelo sistema' : 'pick',
                 map: mapName,
                 team: team,
                 side: side,

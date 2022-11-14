@@ -1,5 +1,4 @@
 import * as express from 'express';
-
 import bodyParser from 'body-parser';
 import { createRoom, rooms } from '../socket/server/server';
 import cors from 'cors';
@@ -25,9 +24,7 @@ const generateUniqueId = () => {
 export const httpServer = app;
 
 httpServer.post('/createRoom', (req, res) => {
-  const checkIfRoomExists = rooms.find(
-    (room) => room.name === req.body.roomName,
-  );
+  const checkIfRoomExists = rooms.find((room) => room.id === req.body.matchId);
   if (checkIfRoomExists) {
     rooms.slice(rooms.indexOf(checkIfRoomExists), 1);
   }

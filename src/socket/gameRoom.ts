@@ -187,7 +187,7 @@ export default class gameRoom {
       this.maps[mapName].bannedBy = team;
       this.maps[mapName].actionAt = new Date();
       this.insertLogs({
-        action: timeout ? 'timeout ban' : 'ban',
+        action: timeout ? 'Banido automaticamente pelo sistema' : 'ban',
         map: mapName,
         team: team,
       });
@@ -321,7 +321,7 @@ export default class gameRoom {
       }
 
       this.insertLogs({
-        action: timeout ? 'timeout pick' : 'pick',
+        action: timeout ? 'Escolhido automaticamente pelo sistema' : 'pick',
         map: mapName,
         team: team,
         side: side,
