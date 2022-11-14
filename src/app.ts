@@ -2,7 +2,7 @@ import { socketServer, createRoom, rooms } from './socket/server/server';
 import { socketClient, socketClient2 } from './socket/client/client';
 import { http } from './http/http';
 
-http.listen(3333, () => console.log('Server is running on port 3333'));
+http.listen(8080, () => console.log('Server is running on port 3333'));
 
 socketServer.emit('hello', 'world');
 
