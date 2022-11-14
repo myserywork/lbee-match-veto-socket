@@ -297,13 +297,13 @@ var gameRoom = /** @class */ (function () {
             this.maps[mapName].side = side;
             this.nonPickedMaps = this.getNonPickedMaps();
             if (this.nonPickedMaps.length === this.matchesCount - 1) {
-                this.maps[mapName].pickText = "1 - ".concat(mapName);
+                this.maps[mapName].pickText = "1\u00B0 - ".concat(mapName.toLocaleUpperCase);
             }
             else if (this.nonPickedMaps.length === this.matchesCount - 2) {
-                this.maps[mapName].pickText = "2 - ".concat(mapName);
+                this.maps[mapName].pickText = "2\u00B0 - ".concat(mapName.toLocaleUpperCase);
             }
             else if (this.nonPickedMaps.length === this.matchesCount - 3) {
-                this.maps[mapName].pickText = "Desempate ".concat(mapName);
+                this.maps[mapName].pickText = "Desempate - ".concat(mapName.toLocaleUpperCase);
             }
             if (this.maps[mapName].side === 'attack') {
                 this.maps[mapName].attack = team;

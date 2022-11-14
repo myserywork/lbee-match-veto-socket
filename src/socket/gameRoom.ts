@@ -313,12 +313,13 @@ export default class gameRoom {
       this.maps[mapName].actionAt = new Date();
       this.maps[mapName].side = side;
       this.nonPickedMaps = this.getNonPickedMaps();
+      const mapNameUpperCased = mapName[0].toUpperCase();
       if (this.nonPickedMaps.length === this.matchesCount - 1) {
-        this.maps[mapName].pickText = `1° - ${mapName}`;
+        this.maps[mapName].pickText = `1° - ${mapNameUpperCased}`;
       } else if (this.nonPickedMaps.length === this.matchesCount - 2) {
-        this.maps[mapName].pickText = `2° - ${mapName}`;
+        this.maps[mapName].pickText = `2° - ${mapNameUpperCased}`;
       } else if (this.nonPickedMaps.length === this.matchesCount - 3) {
-        this.maps[mapName].pickText = `Desempate - ${mapName}`;
+        this.maps[mapName].pickText = `Desempate - ${mapNameUpperCased}`;
       }
 
       if (this.maps[mapName].side === 'attack') {
