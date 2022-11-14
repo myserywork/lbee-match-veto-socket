@@ -24,6 +24,12 @@ const generateUniqueId = () => {
 };
 
 http.post('/createRoom', (req, res) => {
+  const checkIfRoomExists = rooms.find(
+    (room) => room.name === req.body.roomName,
+  );
+  if (checkIfRoomExists) {
+    rooms.slice(rooms.indexOf(checkIfRoomExists), 1);
+  }
   const matchConfig = req.body;
 
   const teamAToken = 'teamA';

@@ -20,6 +20,7 @@ export default class gameRoom {
   nonPickedMaps: any;
   autoActionStarted: boolean;
   turnDisplayText: any;
+  initData: any;
 
   constructor(data: {
     teamA: any;
@@ -31,6 +32,7 @@ export default class gameRoom {
     logo: any;
     matchTurnInterval: any;
   }) {
+    this.initData = data;
     this.teamA = data.teamA;
     this.teamB = data.teamB;
     this.currentTurn = 'teamA';
