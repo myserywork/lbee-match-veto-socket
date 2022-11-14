@@ -224,6 +224,16 @@ export default class gameRoom {
             const sides = ['attack', 'defense'];
             const randomSide = sides[Math.floor(Math.random() * sides.length)];
             this.pickMapSide(randomMap, inverseTeam, randomSide, timeout);
+            if (this.maps[randomMap].side === 'attack') {
+              this.maps[randomMap].attack = inverseTeam;
+              this.maps[randomMap].defense =
+                inverseTeam === 'teamA' ? 'teamB' : 'teamA';
+            } else {
+              this.maps[randomMap].defense = inverseTeam;
+              this.maps[randomMap].attack =
+                inverseTeam === 'teamA' ? 'teamB' : 'teamA';
+            }
+
             this.nonPickedMaps = this.getNonPickedMaps();
           }
         }
@@ -255,6 +265,14 @@ export default class gameRoom {
       this.maps[mapName].pickedBy = team;
       this.maps[mapName].actionAt = new Date();
       this.maps[mapName].side = side;
+
+      if (this.maps[mapName].side === 'attack') {
+        this.maps[mapName].attack = team;
+        this.maps[mapName].defense = team === 'teamA' ? 'teamB' : 'teamA';
+      } else {
+        this.maps[mapName].defense = team;
+        this.maps[mapName].attack = team === 'teamA' ? 'teamB' : 'teamA';
+      }
 
       this.insertLogs({
         action: timeout ? 'timeout pick' : 'pick',
