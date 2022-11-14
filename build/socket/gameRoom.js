@@ -176,7 +176,7 @@ var gameRoom = /** @class */ (function () {
             this.maps[mapName].bannedBy = team;
             this.maps[mapName].actionAt = new Date();
             this.insertLogs({
-                action: timeout ? 'Banido automaticamente pelo sistema' : 'ban',
+                action: timeout ? 'Banido automaticamente pelo sistema' : 'Baniu',
                 map: mapName,
                 team: team,
             });
@@ -295,6 +295,16 @@ var gameRoom = /** @class */ (function () {
             this.maps[mapName].pickedBy = team;
             this.maps[mapName].actionAt = new Date();
             this.maps[mapName].side = side;
+            this.nonPickedMaps = this.getNonPickedMaps();
+            if (this.nonPickedMaps.length === this.matchesCount - 1) {
+                this.maps[mapName].pickText = "1 - ".concat(mapName);
+            }
+            else if (this.nonPickedMaps.length === this.matchesCount - 2) {
+                this.maps[mapName].pickText = "2 - ".concat(mapName);
+            }
+            else if (this.nonPickedMaps.length === this.matchesCount - 3) {
+                this.maps[mapName].pickText = "Desempate ".concat(mapName);
+            }
             if (this.maps[mapName].side === 'attack') {
                 this.maps[mapName].attack = team;
                 this.maps[mapName].defense = team === 'teamA' ? 'teamB' : 'teamA';
@@ -304,7 +314,9 @@ var gameRoom = /** @class */ (function () {
                 this.maps[mapName].attack = team === 'teamA' ? 'teamB' : 'teamA';
             }
             this.insertLogs({
-                action: timeout ? 'Escolhido automaticamente pelo sistema' : 'pick',
+                action: timeout
+                    ? 'Escolhido automaticamente pelo sistema'
+                    : "Escolheu ser o ".concat(side, " do Mapa"),
                 map: mapName,
                 team: team,
                 side: side,

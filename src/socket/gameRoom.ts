@@ -21,6 +21,7 @@ export default class gameRoom {
   autoActionStarted: boolean;
   turnDisplayText: any;
   initData: any;
+  pickedMapsOrder: any;
 
   constructor(data: {
     teamA: any;
@@ -187,7 +188,7 @@ export default class gameRoom {
       this.maps[mapName].bannedBy = team;
       this.maps[mapName].actionAt = new Date();
       this.insertLogs({
-        action: timeout ? 'Banido automaticamente pelo sistema' : 'ban',
+        action: timeout ? 'Banido automaticamente pelo sistema' : 'Baniu',
         map: mapName,
         team: team,
       });
@@ -311,6 +312,14 @@ export default class gameRoom {
       this.maps[mapName].pickedBy = team;
       this.maps[mapName].actionAt = new Date();
       this.maps[mapName].side = side;
+      this.nonPickedMaps = this.getNonPickedMaps();
+      if (this.nonPickedMaps.length === this.matchesCount - 1) {
+        this.maps[mapName].pickText = `1° - ${mapName}`;
+      } else if (this.nonPickedMaps.length === this.matchesCount - 2) {
+        this.maps[mapName].pickText = `2° - ${mapName}`;
+      } else if (this.nonPickedMaps.length === this.matchesCount - 3) {
+        this.maps[mapName].pickText = `Desempate - ${mapName}`;
+      }
 
       if (this.maps[mapName].side === 'attack') {
         this.maps[mapName].attack = team;
@@ -321,7 +330,9 @@ export default class gameRoom {
       }
 
       this.insertLogs({
-        action: timeout ? 'Escolhido automaticamente pelo sistema' : 'pick',
+        action: timeout
+          ? 'Escolhido automaticamente pelo sistema'
+          : `Escolheu ser o ${side} do Mapa`,
         map: mapName,
         team: team,
         side: side,
