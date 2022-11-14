@@ -249,6 +249,7 @@ export default class gameRoom {
   }
   pickMapSide(mapName: string, team: any, side: any, timeout = false) {
     if (!this.checkTurn(team)) return false;
+
     if (this.maps[mapName]) {
       this.maps[mapName].picked = true;
       this.maps[mapName].pickedBy = team;

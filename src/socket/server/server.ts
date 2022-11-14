@@ -89,7 +89,7 @@ io.on('connection', (socket) => {
     const room = findRoom(roomId);
     if (room) {
       const teamSide = getTeamSideByToken(socket.handshake.query.token, roomId);
-      const pickMapSide = room.pickMapSide(mapName, side, teamSide);
+      const pickMapSide = room.pickMapSide(mapName, teamSide, side);
       if (pickMapSide) {
         socket.emit('mapPicked', mapName);
       } else {
